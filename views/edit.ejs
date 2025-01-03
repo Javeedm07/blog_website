@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Blog</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+  <%- include("partials/header.ejs") %>
+<div class="container">
+  <section class="p-4 bg-light text-dark">
+    <form novalidate action="/edit/<%= index %>" method="POST" class="container d-flex flex-column gap-4" enctype="multipart/form-data">
+        <% if (typeof errors !== 'undefined') { %>
+            <div class="alert alert-danger">
+                <ul class="mb-0">
+                    <% errors.forEach(error => { %>
+                        <li><%= error.msg %></li>
+                    <% }); %>
+                </ul>
+            </div>
+        <% } %>
+        <fieldset class="row g-3 p-4 border rounded bg-white shadow-sm">
+            <div class="col-12 col-lg-3">
+                <p class="fw-bold">Edit Blog Details</p>
+                <p class="text-muted small">Modify the details of your blog, including its title and content. Ensure the updated information remains accurate and engaging.</p>
+            </div>
+            <div class="col-12 col-lg-9">
+                <div class="row g-3">
+                    <div class="col-12 col-sm-6">
+                        <label for="title" class="form-label">Blog Title</label>
+                        <input id="title" name="title" type="text" placeholder="Enter the title of your blog" class="form-control" value="<%= blog.title %>" required>
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <label for="authorName" class="form-label">Author Name</label>
+                        <input id="authorName" name="authorName" type="text" placeholder="Enter your name" class="form-control" value="<%= blog.authorName %>" required>
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <label for="category" class="form-label">Category</label>
+                        <select id="category" name="category" class="form-select" required>
+                            <option value="">Select a category</option>
+                            <% categories.forEach(cat => { %>
+                                <option value="<%= cat %>" <%= blog.category === cat ? 'selected' : '' %>><%= cat %></option>
+                            <% }); %>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="col-12 col-sm-6">
+                        <label for="tags" class="form-label">Tags</label>
+                        <input id="tags" name="tags" type="text" placeholder="Enter tags separated by commas" class="form-control" value="<%= blog.tags.join(', ') %>" required>
+                    </div>
+                    <div class="col-12">
+                        <label for="image" class="form-label">Blog Image</label>
+                        <input type="file" class="form-control" id="image" name="image" accept="image/*">
+                        <% if (blog.imageUrl) { %>
+                            <div class="mt-2">
+                                <p class="mb-1">Current Image:</p>
+                                <img src="<%= blog.imageUrl %>" alt="Current blog image" style="max-width: 200px; height: auto;" class="img-thumbnail">
+                            </div>
+                        <% } %>
+                    </div>
+                    <div class="col-12">
+                        <label for="content" class="form-label">Blog Content</label>
+                        <textarea 
+                            id="content" 
+                            name="content"
+                            placeholder="Write the updated content of your blog here" 
+                            class="form-control" 
+                            style="height: 300px; resize: none;" 
+                            required><%= blog.content %></textarea>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <a href="/" class="btn btn-secondary ms-2">Cancel</a>
+                </div>
+            </div>
+        </fieldset>
+    </form>
+  </section>
+</div>
+
+<%- include("partials/footer.ejs") %>
+    
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

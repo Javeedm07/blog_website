@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Blog List</title>
+    <style>
+      .card {
+        transition: transform 0.2s;
+        height: 100%;
+        border: none;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .card:hover {
+        transform: translateY(-5px);
+      }
+
+      .blog-image {
+        height: 200px;
+        object-fit: cover;
+      }
+
+      .tag {
+        font-size: 0.8rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 15px;
+        background-color: #e9ecef;
+        color: #495057;
+        margin-right: 0.5rem;
+        margin-bottom: 0.5rem;
+        display: inline-block;
+      }
+
+      .category-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 0.3rem 0.8rem;
+        border-radius: 15px;
+        background-color: rgba(52, 152, 219, 0.9);
+        color: white;
+        font-size: 0.8rem;
+      }
+
+      .filter-section {
+        background-color: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      }
+
+      .timestamp {
+        font-size: 0.8rem;
+        color: #6c757d;
+      }
+      .blog-card.hidden {
+        display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <%- include("partials/header.ejs") %>
+    <main class="py-4">
+      <div class="container">
+        <div class="filter-section">
+          <div class="row align-items-center">
+            <div class="col-md-8">
+              <h5 class="mb-3">Categories</h5>
+              <div class="d-flex flex-wrap gap-2">
+                <a
+                  href="/"
+                  class="btn btn-sm <%= !currentCategory ? 'btn-primary' : 'btn-outline-primary' %>"
+                >
+                  All
+                </a>
+                <% categories.forEach(category => { %>
+                <a
+                  href="/?category=<%= category %>"
+                  class="btn btn-sm <%= currentCategory === category ? 'btn-primary' : 'btn-outline-primary' %>"
+                >
+                  <%= category %>
+                </a>
+                <% }); %>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="input-group mt-3 mt-md-0">
+                <input
+                  type="text"
+                  id="searchInput"
+                  class="form-control"
+                  placeholder="Search blogs..."
+                  value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>"
+                  autocomplete="off"
+                />
+                <button class="btn btn-primary" type="button">
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row g-4" id="blogGrid">
+          <% blogs.forEach((blog, index) => { %>
+          <div
+            class="col-md-6 col-lg-4 blog-card"
+            data-title="<%= blog.title.toLowerCase() %>"
+            data-content="<%= blog.content.toLowerCase() %>"
+            data-tags="<%= blog.tags.join(',').toLowerCase() %>"
+            data-author="<%= blog.authorName.toLowerCase() %>"
+            data-category="<%= blog.category.toLowerCase() %>"
+          >
+            <div class="card h-100">
+              <% if (blog.imageUrl) { %>
+              <img
+                src="<%= blog.imageUrl %>"
+                class="card-img-top blog-image"
+                alt="<%= blog.title %>"
+              />
+              <% } else { %>
+              <img
+                src="/images/no-image.jpg"
+                class="card-img-top blog-image"
+                alt="Default Image"
+              />
+              <% } %>
+              <div class="category-badge"><%= blog.category %></div>
+              <div class="card-body">
+                <h5 class="card-title"><%= blog.title %></h5>
+                <p class="timestamp">
+                  <i class="far fa-clock me-1"></i>
+                  <%= new Date(blog.timestamp).toLocaleDateString('en-US', {
+                  year: 'numeric', month: 'long', day: 'numeric' }) %>
+                </p>
+                <p class="card-text text-muted">
+                  <%= blog.content.substring(0, 150) %>...
+                </p>
+                <div class="mb-3">
+                  <% blog.tags.forEach(tag => { %>
+                  <span class="tag">#<%= tag %></span>
+                  <% }); %>
+                </div>
+              </div>
+              <div class="card-footer bg-white border-0">
+                <div class="d-flex justify-content-between align-items-center">
+                  <small class="text-muted">By <%= blog.authorName %></small>
+                  <a href="/<%= index %>" class="btn btn-primary btn-sm"
+                    >Read More</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+          <% }); %>
+
+          <!-- No results message -->
+          <div id="noResults" class="col-12 text-center py-5 d-none">
+            <div class="alert alert-info">
+              <i class="fas fa-info-circle me-2"></i>
+              No blogs found. Try different search terms or categories.
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <%- include("partials/footer.ejs") %>
+
+    <!-- Add this script before closing body tag -->
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const searchInput = document.getElementById("searchInput");
+        const blogCards = document.querySelectorAll(".blog-card");
+        const noResults = document.getElementById("noResults");
+
+        function debounce(func, wait) {
+          let timeout;
+          return function executedFunction(...args) {
+            const later = () => {
+              clearTimeout(timeout);
+              func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+          };
+        }
+
+        function filterBlogs() {
+          const searchTerm = searchInput.value.toLowerCase().trim();
+          let visibleCount = 0;
+
+          blogCards.forEach((card) => {
+            const title = card.dataset.title;
+            const content = card.dataset.content;
+            const tags = card.dataset.tags;
+            const author = card.dataset.author;
+            const category = card.dataset.category;
+
+            const matches =
+              title.includes(searchTerm) ||
+              content.includes(searchTerm) ||
+              tags.includes(searchTerm) ||
+              author.includes(searchTerm) ||
+              category.includes(searchTerm);
+
+            if (matches) {
+              card.classList.remove("hidden");
+              visibleCount++;
+            } else {
+              card.classList.add("hidden");
+            }
+          });
+
+          // Toggle no results message
+          if (visibleCount === 0) {
+            noResults.classList.remove("d-none");
+          } else {
+            noResults.classList.add("d-none");
+          }
+        }
+
+        // Add debounced event listener to search input
+        searchInput.addEventListener("input", debounce(filterBlogs, 300));
+
+        // Initial filter if there's a search query
+        if (searchInput.value) {
+          filterBlogs();
+        }
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Blog</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/tagify@4.17.9/dist/tagify.css" rel="stylesheet">
+    <style>
+        .form-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .image-preview {
+            max-width: 100%;
+            max-height: 300px;
+            border-radius: 10px;
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .image-preview-container {
+            position: relative;
+            margin-top: 1rem;
+        }
+
+        .remove-image {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(220, 53, 69, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: none;
+            cursor: pointer;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: #2c3e50;
+        }
+
+        .category-select {
+            position: relative;
+        }
+
+        .new-category-input {
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .tagify {
+            border-radius: 0.375rem;
+        }
+
+        .validation-error {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .form-section {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-section-title {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+    <%- include("partials/header.ejs") %>
+    
+    <main class="py-4">
+        <div class="container">
+            <div class="form-container">
+                <h2 class="mb-4">Create New Blog Post</h2>
+                
+                <% if (typeof errors !== 'undefined' && errors.length > 0) { %>
+                    <div class="alert alert-danger">
+                        <ul class="mb-0">
+                            <% errors.forEach(error => { %>
+                                <li><%= error.msg %></li>
+                            <% }); %>
+                        </ul>
+                    </div>
+                <% } %>
+
+                <form action="/submit" method="POST" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    <div class="row">
+                        <div class="col-lg-8">
+                            <div class="form-section">
+                                <h5 class="form-section-title">
+                                    <i class="fas fa-pencil-alt me-2"></i>Basic Information
+                                </h5>
+                                <div class="mb-3">
+                                    <label for="title" class="form-label">Blog Title</label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="title" 
+                                           name="title" 
+                                           required
+                                           value="<%= typeof formData !== 'undefined' ? formData.title : '' %>"
+                                           placeholder="Enter an engaging title">
+                                    <div class="invalid-feedback">
+                                        Please provide a title (minimum 5 characters).
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="authorName" class="form-label">Author Name</label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="authorName" 
+                                           name="authorName" 
+                                           required
+                                           value="<%= typeof formData !== 'undefined' ? formData.authorName : '' %>"
+                                           placeholder="Your name">
+                                    <div class="invalid-feedback">
+                                        Please provide an author name.
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="content" class="form-label">Blog Content</label>
+                                    <textarea class="form-control" 
+                                              id="content" 
+                                              name="content" 
+                                              rows="12" 
+                                              required
+                                              placeholder="Write your blog content here..."><%= typeof formData !== 'undefined' ? formData.content : '' %></textarea>
+                                    <div class="invalid-feedback">
+                                        Please provide content (minimum 50 characters).
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-4">
+                            <div class="form-section">
+                                <h5 class="form-section-title">
+                                    <i class="fas fa-tags me-2"></i>Categories & Tags
+                                </h5>
+                                <div class="mb-3">
+                                    <label for="category" class="form-label">Category</label>
+                                    <div class="category-select">
+                                        <select class="form-select" id="category" name="category" required>
+                                            <option value="">Select a category</option>
+                                            <% categories.forEach(category => { %>
+                                                <option value="<%= category %>" 
+                                                        <%= typeof formData !== 'undefined' && formData.category === category ? 'selected' : '' %>>
+                                                    <%= category %>
+                                                </option>
+                                            <% }); %>
+                                            <option value="Other">Other</option>
+                                        </select>
+                                        <div class="invalid-feedback">
+                                            Please select a category.
+                                        </div>
+                                    </div>
+                                    <div class="new-category-input">
+                                        <input type="text" class="form-control" id="newCategory" placeholder="Enter new category name">
+                                    </div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="tags" class="form-label">Tags</label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           id="tags" 
+                                           name="tags" 
+                                           value="<%= typeof formData !== 'undefined' ? formData.tags : '' %>"
+                                           placeholder="Add tags...">
+                                    <small class="text-muted">Press enter or comma to add tags</small>
+                                </div>
+                            </div>
+
+                            <div class="form-section">
+                                <h5 class="form-section-title">
+                                    <i class="fas fa-image me-2"></i>Featured Image
+                                </h5>
+                                <div class="mb-3">
+                                    <label for="image" class="form-label">Upload Image</label>
+                                    <input type="file" 
+                                           class="form-control" 
+                                           id="image" 
+                                           name="image" 
+                                           accept="image/*">
+                                    <small class="text-muted d-block mt-1">Maximum file size: 10MB</small>
+                                    <div class="image-preview-container">
+                                        <img id="imagePreview" class="image-preview" alt="Preview">
+                                        <button type="button" class="remove-image" id="removeImage">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2 mt-4">
+                        <a href="/" class="btn btn-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-paper-plane me-2"></i>Publish Blog
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <%- include("partials/footer.ejs") %>
+
+    <script src="https://cdn.jsdelivr.net/npm/tagify@4.17.9/dist/tagify.min.js"></script>
+    <script>
+        new Tagify(document.querySelector('input[name=tags]'), {
+            maxTags: 10,
+            dropdown: {
+                maxItems: 20,
+                classname: "tags-look",
+                enabled: 0,
+                closeOnSelect: false
+            }
+        });
+
+        const imageInput = document.getElementById('image');
+        const imagePreview = document.getElementById('imagePreview');
+        const removeImageBtn = document.getElementById('removeImage');
+        const previewContainer = document.querySelector('.image-preview-container');
+
+        imageInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                if (file.size > 10000000) {
+                    alert('File size must be less than 10MB');
+                    this.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.src = e.target.result;
+                    imagePreview.style.display = 'block';
+                    removeImageBtn.style.display = 'flex';
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        removeImageBtn.addEventListener('click', function() {
+            imageInput.value = '';
+            imagePreview.src = '';
+            imagePreview.style.display = 'none';
+            this.style.display = 'none';
+        });
+
+        const categorySelect = document.getElementById('category');
+        const newCategoryInput = document.querySelector('.new-category-input');
+        const newCategoryField = document.getElementById('newCategory');
+
+        categorySelect.addEventListener('change', function(e) {
+            if (e.target.value === 'new') {
+                newCategoryInput.style.display = 'block';
+                newCategoryField.setAttribute('required', 'required');
+            } else {
+                newCategoryInput.style.display = 'none';
+                newCategoryField.removeAttribute('required');
+            }
+        });
+
+        const form = document.querySelector('.needs-validation');
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            if (categorySelect.value === 'new' && !newCategoryField.value.trim()) {
+                event.preventDefault();
+                newCategoryField.classList.add('is-invalid');
+                if (!newCategoryField.nextElementSibling) {
+                    const feedback = document.createElement('div');
+                    feedback.className = 'invalid-feedback';
+                    feedback.textContent = 'Please enter a new category name';
+                    newCategoryField.parentNode.appendChild(feedback);
+                }
+            }
+
+            form.classList.add('was-validated');
+        }, false);
+
+        const contentTextarea = document.getElementById('content');
+        const minContentLength = 50;
+
+        contentTextarea.addEventListener('input', function() {
+            const currentLength = this.value.length;
+            if (currentLength < minContentLength) {
+                this.setCustomValidity(`Please enter at least ${minContentLength} characters (${minContentLength - currentLength} more needed)`);
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        const titleInput = document.getElementById('title');
+        const minTitleLength = 5;
+
+        titleInput.addEventListener('input', function() {
+            const currentLength = this.value.length;
+            if (currentLength < minTitleLength) {
+                this.setCustomValidity(`Title must be at least ${minTitleLength} characters (${minTitleLength - currentLength} more needed)`);
+            } else {
+                this.setCustomValidity('');
+            }
+        });
+
+        document.querySelector('input[name=tags]').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+            }
+        });
+
+        let autosaveTimeout;
+        const autosaveDelay = 3000;
+
+        function autosave() {
+            clearTimeout(autosaveTimeout);
+            autosaveTimeout = setTimeout(() => {
+                const formData = {
+                    title: titleInput.value,
+                    content: contentTextarea.value,
+                    authorName: document.getElementById('authorName').value,
+                    category: categorySelect.value,
+                    tags: document.querySelector('input[name=tags]').value
+                };
+                localStorage.setItem('blogDraft', JSON.stringify(formData));
+            }, autosaveDelay);
+        }
+
+        form.querySelectorAll('input, textarea, select').forEach(input => {
+            input.addEventListener('input', autosave);
+        });
+
+        window.addEventListener('load', () => {
+            const savedDraft = localStorage.getItem('blogDraft');
+            if (savedDraft && !form.querySelector('.alert-danger')) {
+                const draft = JSON.parse(savedDraft);
+                if (confirm('Would you like to restore your unsaved draft?')) {
+                    Object.keys(draft).forEach(key => {
+                        const input = form.querySelector(`[name="${key}"]`);
+                        if (input) {
+                            input.value = draft[key];
+                        }
+                    });
+                }
+            }
+        });
+
+        form.addEventListener('submit', () => {
+            localStorage.removeItem('blogDraft');
+        });
+    </script>
+</body>
+</html>
