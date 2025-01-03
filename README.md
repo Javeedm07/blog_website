@@ -36,7 +36,7 @@ https://github.com/Javeedm07/blog_website.git
 
 2. Navigate to the project directory:
 ```bash
-cd dynamic-blog-platform
+cd blog_website
 ```
 
 3. Install dependencies:
