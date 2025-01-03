@@ -59,7 +59,7 @@ The application will be available at `http://localhost:3000`
 ## 📁 Project Structure
 
 ```
-dynamic-blog-platform/
+blog_website/
 ├── public/
 │   ├── uploads/    # Uploaded images
 │   └── styles/     # CSS files
@@ -131,17 +131,3 @@ The application includes several validation rules:
 ## 📄 License
 
 This project is licensed under the MIT License - see the LICENSE file for details
-
-## 👤 Author
-
-Your Name
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your Name](https://linkedin.com/in/yourprofile)
-
-## 🙏 Acknowledgments
-
-- [Express.js](https://expressjs.com/)
-- [EJS](https://ejs.co/)
-- [Bootstrap](https://getbootstrap.com/)
-- [Font Awesome](https://fontawesome.com/)
-- [Unsplash](https://unsplash.com/) (for sample images)
