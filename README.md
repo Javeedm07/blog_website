@@ -31,7 +31,7 @@ A modern, responsive blog platform built with Node.js, Express, and EJS templati
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/dynamic-blog-platform.git
+https://github.com/Javeedm07/blog_website.git
 ```
 
 2. Navigate to the project directory:
